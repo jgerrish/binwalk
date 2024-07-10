@@ -12,3 +12,41 @@
 >7  byte    >57         {invalid}
 >8  byte    !0x2E       {invalid}
 >0  string  x           "%s"
+
+# eGON AllWinner BROM bootloader
+#
+# From the u-boot source:
+# arch/arm/include/asm/arch-sunxi/spl.h
+#
+# The sunxi Wiki also has information:
+# https://linux-sunxi.org/BROM
+#
+# This version of the magic identifier is from the u-boot
+# SPL generator.  Version 2019.01-rc3 of the sunxi custodian branch
+# of u-boot: https://github.com/linux-sunxi/u-boot-sunxi.git
+#
+# This variant of it has a signature of SPL at 0x14
+#
+4	string	eGON.BT0	eGON BROM boot loader,
+>0x14	string	SPL		U-Boot SPL variant signature,
+>>0x17	ubyte&0b1111100	x	SPL Header Major Version: %d,
+>>0x17	ubyte&0b0000011	x	SPL Header Minor Version: %d,
+# This looks like a branch instruction (relative branch) with an A1 encoding
+# (instruction prefix of 0x1010
+# Relative branches with an encoding of A1 have a jump width of 4
+# bytes (multiples of 4)
+# E.g. b 0 would branch to the instruction after the next instruction
+>>0    ulelong&0xff000000  0xEA000000	   Valid relative branch operation,
+>>>0   ulelong&0x00ffffff  x		Branch to relative address: 0x%X * 4,
+#
+# This variant of it is the Allwinner boot0 with 16k length
+# From the binary at hno's repository:
+# https://github.com/hno/Allwinner-info/tree/master/BROM
+#
+>0x14	uleshort	0x4000	Allwinner BROM boot0 variant signature, 16k length
+#
+# This variant of it is the Allwinner boot0 with 20k length
+# From the binary at hno's repository:
+# https://github.com/hno/Allwinner-info/tree/master/BROM
+#
+>0x14	uleshort	0x5000	Allwinner BROM boot0 variant signature, 20k length
